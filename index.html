@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebDev Resources</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #f5f5f5;
+      }
+
+      h1 {
+        color: #333;
+      }
+
+      h2 {
+        color: #444;
+        margin-top: 30px;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 5px;
+      }
+
+      .section {
+        width: 90%;
+        max-width: 1000px;
+        margin-bottom: 30px;
+      }
+
+      .button-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 20px;
+        justify-content: center;
+      }
+
+      button {
+        padding: 12px 25px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+
+      .pdf-button {
+        background-color: #28a745;
+      }
+
+      .pdf-button:hover {
+        background-color: #218838;
+      }
+
+      .download-button {
+        background-color: #6c757d;
+      }
+
+      .download-button:hover {
+        background-color: #5a6268;
+      }
+
+      #text-container {
+        width: 80%;
+        margin-top: 20px;
+        background: white;
+        border: 1px solid #ccc;
+        padding: 15px;
+        white-space: pre-wrap;
+        overflow-y: auto;
+        max-height: 70vh;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        display: none;
+        font-family: 'Courier New', Courier, monospace;
+      }
+
+      #pdf-container {
+        width: 90%;
+        height: 70vh;
+        margin-top: 20px;
+        border: 1px solid #ccc;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        display: none;
+      }
+
+      .clear-button,
+      .copy-button {
+        margin-top: 20px;
+        padding: 12px 25px;
+        background-color: #d9534f;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        display: none;
+        transition: background-color 0.3s ease;
+      }
+
+      .clear-button:hover,
+      .copy-button:hover {
+        background-color: #c9302c;
+      }
+
+      .error-message {
+        color: red;
+        font-weight: bold;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Web Dev Resources</h1>
+    
+    <!-- Text Files Section -->
+    <div class="section">
+      <h2>Text Files</h2>
+      <div class="button-container" id="text-button-container"></div>
+      <div id="text-container"></div>
+    </div>
+    
+    <!-- PDF Files Section -->
+    <div class="section">
+      <h2>PDF Files</h2>
+      <div class="button-container" id="pdf-button-container"></div>
+      <div class="button-container" id="pdf-download-container"></div>
+      <iframe id="pdf-container"></iframe>
+    </div>
+    
+    <button id="clear-button" class="clear-button" onclick="clearContent()">Clear</button>
+    <button id="copy-button" class="copy-button" onclick="copyText()">Copy Text</button>
+    <div id="error-message" class="error-message"></div>
+
+    <script>
+      const txtData = [
+       
+        { name: "2-Program", url: "pgm2.txt" },
+       
+      ];
+
+      const pdfData = [
+        { name: "Manual for AWS remaining expt", url: "Manual for AWS remaining expt.pdf", downloadName: "eManual for AWS remaining expt.pdf" },
+        { name: "Cloud computing", url: "Cloud computing.pdf", downloadName: "Cloud computing.pdf" },
+        
+      ];
+
+      const textButtonContainer = document.getElementById("text-button-container");
+      const pdfButtonContainer = document.getElementById("pdf-button-container");
+      const pdfDownloadContainer = document.getElementById("pdf-download-container");
+      const textContainer = document.getElementById("text-container");
+      const pdfContainer = document.getElementById("pdf-container");
+      const clearButton = document.getElementById("clear-button");
+      const copyButton = document.getElementById("copy-button");
+      const errorMessage = document.getElementById("error-message");
+
+      // Function to fetch and display the content of a .txt file
+      async function displayTextFile(url) {
+        try {
+          const response = await fetch(url);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch ${url}: ${response.statusText}`);
+          }
+          const text = await response.text();
+          textContainer.textContent = text;
+          textContainer.style.display = "block";
+          pdfContainer.style.display = "none"; // Hide PDF viewer if open
+          clearButton.style.display = "inline-block";
+          copyButton.style.display = "inline-block";
+          errorMessage.textContent = "";
+        } catch (error) {
+          textContainer.textContent = "";
+          textContainer.style.display = "none";
+          errorMessage.textContent = `Error loading file: ${error.message}`;
+          clearButton.style.display = "none";
+          copyButton.style.display = "none";
+        }
+      }
+
+      // Function to display a PDF file
+      function displayPdfFile(url) {
+        try {
+          pdfContainer.src = url;
+          pdfContainer.style.display = "block";
+          textContainer.style.display = "none"; // Hide text container if open
+          clearButton.style.display = "inline-block";
+          copyButton.style.display = "none"; // Hide copy button for PDFs
+          errorMessage.textContent = "";
+        } catch (error) {
+          pdfContainer.style.display = "none";
+          errorMessage.textContent = `Error loading PDF: ${error.message}`;
+          clearButton.style.display = "none";
+        }
+      }
+
+      // Function to download a file
+      function downloadFile(url, filename) {
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename || url.split('/').pop();
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      // Function to clear all content
+      function clearContent() {
+        textContainer.textContent = "";
+        textContainer.style.display = "none";
+        pdfContainer.style.display = "none";
+        clearButton.style.display = "none";
+        copyButton.style.display = "none";
+        errorMessage.textContent = "";
+      }
+
+      // Function to copy the text to the clipboard
+      function copyText() {
+        const text = textContainer.textContent;
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        textArea.setSelectionRange(0, 99999);
+        
+        try {
+          document.execCommand("copy");
+          alert("Text copied to clipboard!");
+        } catch (err) {
+          alert("Failed to copy text: " + err);
+        }
+        
+        document.body.removeChild(textArea);
+      }
+
+      // Create buttons for text files
+      txtData.forEach((txt) => {
+        const button = document.createElement("button");
+        button.textContent = txt.name;
+        button.onclick = () => displayTextFile(txt.url);
+        textButtonContainer.appendChild(button);
+      });
+
+      // Create buttons for PDF files (view and download)
+      pdfData.forEach((pdf) => {
+        // View button
+        const viewButton = document.createElement("button");
+        viewButton.textContent = `View ${pdf.name}`;
+        viewButton.classList.add("pdf-button");
+        viewButton.onclick = () => displayPdfFile(pdf.url);
+        pdfButtonContainer.appendChild(viewButton);
+        
+        // Download button
+        const downloadButton = document.createElement("button");
+        downloadButton.textContent = `Download ${pdf.name}`;
+        downloadButton.classList.add("download-button");
+        downloadButton.onclick = () => downloadFile(pdf.url, pdf.downloadName);
+        pdfDownloadContainer.appendChild(downloadButton);
+      });
+    </script>
+  </body>
+</html>

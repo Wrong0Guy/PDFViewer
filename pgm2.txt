@@ -1,0 +1,44 @@
+FunctionA: 
+import json 
+ 
+def lambda_handler(event, context): 
+    print("Function A executed") 
+    return { 
+        'statusCode': 200, 
+        'body': json.dumps('Hello from Function A!') 
+    } 
+FunctionB: 
+import json 
+ 
+def lambda_handler(event, context): 
+    print("Function B executed") 
+    return { 
+        'statusCode': 200, 
+        'body': json.dumps('Hello from Function B!') 
+    } 
+ 
+State Machine: 
+{ 
+  "Comment": "A single workflow to invoke FunctionA and FunctionB", 
+  "StartAt": "InvokeFunctionA", 
+  "States": { 
+    "InvokeFunctionA": { 
+      "Type": "Task", 
+      "Resource": "arn:aws:states:::lambda:invoke", 
+      "Parameters": { 
+        "FunctionName": "FunctionA", 
+        "Payload": {} 
+      }, 
+      "Next": "InvokeFunctionB" 
+    }, 
+    "InvokeFunctionB": { 
+      "Type": "Task", 
+      "Resource": "arn:aws:states:::lambda:invoke", 
+      "Parameters": { 
+        "FunctionName": "FunctionB", 
+        "Payload": {} 
+      }, 
+      "End": true 
+    } 
+  } 
+} 
