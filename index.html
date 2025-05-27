@@ -65,12 +65,24 @@
         transform: translateY(-2px);
       }
 
+      .file-button.active {
+        background-color: #0056b3;
+        box-shadow: 0 0 0 2px #003366;
+        font-weight: bold;
+      }
+
       .pdf-button {
         background-color: #28a745;
       }
 
       .pdf-button:hover {
         background-color: #218838;
+      }
+
+      .pdf-button.active {
+        background-color: #218838;
+        box-shadow: 0 0 0 2px #145c1f;
+        font-weight: bold;
       }
 
       .content-container {
@@ -196,20 +208,18 @@
       const txtData = [
         { name: "1", url: "1.txt" },
         { name: "2", url: "2.txt" },
-       { name: "3", url: "3.txt" },
-       { name: "4", url: "4.txt" },
-       { name: "5", url: "5.txt" },
-       { name: "6", url: "6.txt" },
-       { name: "7", url: "7.txt" },
-       { name: "8", url: "8.txt" },
-       { name: "9", url: "9.txt" },
-       { name: "10", url: "10.txt" },
-      
+        { name: "3", url: "3.txt" },
+        { name: "4", url: "4.txt" },
+        { name: "5", url: "5.txt" },
+        { name: "6", url: "6.txt" },
+        { name: "7", url: "7.txt" },
+        { name: "8", url: "8.txt" },
+        { name: "9", url: "9.txt" },
+        { name: "10", url: "10.txt" },
       ];
 
       const pdfData = [
        // { name: "AWS Experiments Manual", url: "Manual for AWS remaining expt.pdf", downloadName: "" },
-       
       ];
 
       // DOM elements
@@ -224,12 +234,22 @@
       const copyButton = document.getElementById("copy-button");
       const errorMessage = document.getElementById("error-message");
 
-      // Currently selected PDF
+      // Currently selected PDF and text file
       let currentPdf = null;
+      let currentTextButton = null;
 
       // Function to fetch and display the content of a .txt file
-      async function displayTextFile(name, url) {
+      async function displayTextFile(name, url, button) {
         try {
+          // Remove active class from previously selected button
+          if (currentTextButton) {
+            currentTextButton.classList.remove('active');
+          }
+          
+          // Add active class to the clicked button
+          button.classList.add('active');
+          currentTextButton = button;
+          
           const response = await fetch(url);
           if (!response.ok) {
             throw new Error(`Failed to fetch ${url}: ${response.statusText}`);
@@ -246,8 +266,16 @@
       }
 
       // Function to display a PDF file
-      function displayPdfFile(pdf) {
+      function displayPdfFile(pdf, button) {
         try {
+          // Remove active class from all text buttons
+          document.querySelectorAll('.file-button').forEach(btn => {
+            btn.classList.remove('active');
+          });
+          
+          // Add active class to the clicked PDF button
+          button.classList.add('active');
+          
           currentPdf = pdf;
           pdfContainer.src = pdf.url;
           pdfTitle.textContent = pdf.name;
@@ -283,6 +311,13 @@
         textContainer.style.display = "none";
         pdfViewerContainer.style.display = "none";
         currentPdf = null;
+        
+        // Remove active class from all buttons
+        document.querySelectorAll('.file-button').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        
+        currentTextButton = null;
         errorMessage.textContent = "";
       }
 
@@ -311,6 +346,13 @@
         textContainer.style.display = "none";
         pdfViewerContainer.style.display = "none";
         errorMessage.textContent = `Error: ${error.message}`;
+        
+        // Remove active class from all buttons on error
+        document.querySelectorAll('.file-button').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        
+        currentTextButton = null;
       }
 
       // Create buttons for text files
@@ -318,7 +360,7 @@
         const button = document.createElement("button");
         button.className = "file-button";
         button.textContent = txt.name;
-        button.onclick = () => displayTextFile(txt.name, txt.url);
+        button.onclick = (e) => displayTextFile(txt.name, txt.url, e.target);
         textButtonContainer.appendChild(button);
       });
 
@@ -327,7 +369,7 @@
         const button = document.createElement("button");
         button.className = "file-button pdf-button";
         button.textContent = pdf.name;
-        button.onclick = () => displayPdfFile(pdf);
+        button.onclick = (e) => displayPdfFile(pdf, e.target);
         pdfButtonContainer.appendChild(button);
       });
 
