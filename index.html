@@ -302,13 +302,7 @@
         return false;
       });
       
-      // 6. DOM tampering protection
-      const originalHTML = document.documentElement.innerHTML;
-      setInterval(() => {
-        if (document.documentElement.innerHTML !== originalHTML) {
-          showSecurityAlert("Tampering Detected");
-        }
-      }, 1000);
+      
       
       // ================= YOUR EXISTING CODE =================
       const txtData = [
