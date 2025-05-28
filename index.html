@@ -209,41 +209,66 @@
     <div id="error-message" class="error-message"></div>
 
     <script>
+ // Improved DevTools detection
+  let devToolsOpen = false;
+  
+  // Check for resize differences that indicate DevTools
+  function checkDevTools() {
+    const threshold = 160; // More reasonable threshold
+    const widthDiff = window.outerWidth - window.innerWidth;
+    const heightDiff = window.outerHeight - window.innerHeight;
+    
+    // Only trigger if significant difference exists
+    if ((widthDiff > threshold && widthDiff < threshold + 20) || 
+        (heightDiff > threshold && heightDiff < threshold + 20)) {
+      if (!devToolsOpen) {
+        devToolsOpen = true;
+        showDevToolsWarning();
+      }
+    } else {
+      devToolsOpen = false;
+    }
+  }
 
-        // Add these new event listeners to prevent inspection
-      document.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-      });
-      
-      document.addEventListener('keydown', function(e) {
-        // Disable F12
-        if (e.key === 'F12' || e.keyCode === 123) {
-          e.preventDefault();
-        }
-        // Disable Ctrl+Shift+I
-        if (e.ctrlKey && e.shiftKey && e.key === 'I') {
-          e.preventDefault();
-        }
-        // Disable Ctrl+Shift+J
-        if (e.ctrlKey && e.shiftKey && e.key === 'J') {
-          e.preventDefault();
-        }
-        // Disable Ctrl+U
-        if (e.ctrlKey && e.key === 'u') {
-          e.preventDefault();
-        }
-      });
+  function showDevToolsWarning() {
+    const warning = document.createElement('div');
+    warning.style.position = 'fixed';
+    warning.style.top = '0';
+    warning.style.left = '0';
+    warning.style.width = '100%';
+    warning.style.backgroundColor = 'red';
+    warning.style.color = 'white';
+    warning.style.padding = '10px';
+    warning.style.textAlign = 'center';
+    warning.style.zIndex = '9999';
+    warning.textContent = 'Developer tools are not allowed on this page. Please close them to continue.';
+    document.body.appendChild(warning);
+    
+    // Blur the page content
+    document.body.style.filter = 'blur(5px)';
+    document.body.style.pointerEvents = 'none';
+  }
 
-      // Additional protection - this makes it harder to open dev tools via right-click inspect
-      setInterval(function() {
-        if (window.outerWidth - window.innerWidth > 100 || 
-            window.outerHeight - window.innerHeight > 100) {
-          // This detects if dev tools might be open (window size changes)
-          document.body.innerHTML = '<h1>Developer tools are not allowed</h1>';
-          window.close();
-        }
-      }, 1000);
+  // Run check less frequently (every 500ms instead of 1000ms)
+  setInterval(checkDevTools, 500);
 
+  // Prevent right-click menu
+  document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+  });
+  
+  // Prevent keyboard shortcuts
+  document.addEventListener('keydown', function(e) {
+    // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+    if (e.key === 'F12' || 
+        e.keyCode === 123 || 
+        (e.ctrlKey && e.shiftKey && e.key === 'I') || 
+        (e.ctrlKey && e.shiftKey && e.key === 'J') || 
+        (e.ctrlKey && e.key === 'u')) {
+      e.preventDefault();
+      showDevToolsWarning();
+    }
+  });
       
       const txtData = [
         { name: "1", url: "1a.txt" },
