@@ -209,64 +209,51 @@
     <div id="error-message" class="error-message"></div>
 
     <script>
- // Improved DevTools detection
+ 
+  // Improved DevTools detection with alerts
   let devToolsOpen = false;
+  let lastAlertTime = 0;
   
-  // Check for resize differences that indicate DevTools
   function checkDevTools() {
-    const threshold = 160; // More reasonable threshold
+    const threshold = 160;
     const widthDiff = window.outerWidth - window.innerWidth;
     const heightDiff = window.outerHeight - window.innerHeight;
+    const now = Date.now();
     
-    // Only trigger if significant difference exists
-    if ((widthDiff > threshold && widthDiff < threshold + 20) || 
-        (heightDiff > threshold && heightDiff < threshold + 20)) {
-      if (!devToolsOpen) {
-        devToolsOpen = true;
-        showDevToolsWarning();
-      }
-    } else {
+    // Only show alert once every 5 seconds maximum
+    if ((widthDiff > threshold || heightDiff > threshold) && 
+        !devToolsOpen && 
+        (now - lastAlertTime > 5000)) {
+      devToolsOpen = true;
+      lastAlertTime = now;
+      alert("Developer tools are not allowed. Please close them to continue using this website.");
+    } else if (widthDiff <= threshold && heightDiff <= threshold) {
       devToolsOpen = false;
     }
   }
 
-  function showDevToolsWarning() {
-    const warning = document.createElement('div');
-    warning.style.position = 'fixed';
-    warning.style.top = '0';
-    warning.style.left = '0';
-    warning.style.width = '100%';
-    warning.style.backgroundColor = 'red';
-    warning.style.color = 'white';
-    warning.style.padding = '10px';
-    warning.style.textAlign = 'center';
-    warning.style.zIndex = '9999';
-    warning.textContent = 'Developer tools are not allowed on this page. Please close them to continue.';
-    document.body.appendChild(warning);
-    
-    // Blur the page content
-    document.body.style.filter = 'blur(5px)';
-    document.body.style.pointerEvents = 'none';
-  }
-
-  // Run check less frequently (every 500ms instead of 1000ms)
+  // Run check every 500ms
   setInterval(checkDevTools, 500);
 
   // Prevent right-click menu
   document.addEventListener('contextmenu', function(e) {
     e.preventDefault();
+    alert("Right-click is disabled on this website.");
   });
   
   // Prevent keyboard shortcuts
   document.addEventListener('keydown', function(e) {
     // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
-    if (e.key === 'F12' || 
+    const now = Date.now();
+    if ((e.key === 'F12' || 
         e.keyCode === 123 || 
         (e.ctrlKey && e.shiftKey && e.key === 'I') || 
         (e.ctrlKey && e.shiftKey && e.key === 'J') || 
-        (e.ctrlKey && e.key === 'u')) {
+        (e.ctrlKey && e.key === 'u')) &&
+        (now - lastAlertTime > 5000)) {
       e.preventDefault();
-      showDevToolsWarning();
+      lastAlertTime = now;
+      alert("This keyboard shortcut is disabled. Developer tools are not allowed on this website.");
     }
   });
       
