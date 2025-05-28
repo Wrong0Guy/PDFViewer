@@ -112,8 +112,10 @@
       .action-buttons {
         display: flex;
         gap: 15px;
-        margin-top: 20px;
+        margin-bottom: 20px;
         justify-content: center;
+        width: 90%;
+        max-width: 1000px;
       }
 
       .action-button {
@@ -177,6 +179,12 @@
   <body>
     <h1>Web Dev Resources</h1>
     
+    <!-- Action Buttons moved to the top -->
+    <div class="action-buttons">
+      <button id="clear-button" class="action-button clear-button" onclick="clearContent()">Clear All</button>
+      <button id="copy-button" class="action-button copy-button" onclick="copyText()">Copy Text</button>
+    </div>
+    
     <!-- Text Files Section -->
     <div class="resource-section">
       <h2 class="section-title">Text Files</h2>
@@ -195,11 +203,6 @@
         </div>
         <iframe id="pdf-container"></iframe>
       </div>
-    </div>
-    
-    <div class="action-buttons">
-      <button id="clear-button" class="action-button clear-button" onclick="clearContent()">Clear All</button>
-      <button id="copy-button" class="action-button copy-button" onclick="copyText()">Copy Text</button>
     </div>
     
     <div id="error-message" class="error-message"></div>
