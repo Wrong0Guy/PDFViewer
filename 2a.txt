@@ -29,8 +29,8 @@ import Footer from './Footer.jsx'
 function App() { 
 return ( 
 <> 
-Student name="Sudarshan" 
-Header  title=" React lAb " 
+Student name="Chhotha Bheem" 
+Header  title=" Chhota Bheem & Krishna: Mayanagari " 
 Footer tagline ="Jain College of Engineering" 
 </> 
 ); 
