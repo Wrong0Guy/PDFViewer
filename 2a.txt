@@ -1,21 +1,27 @@
 Footer.js  
+import React from 'react';
 function  Footer(props) 
 { 
 <div><p>Name :{props.tagline}</p></div> 
 }  
 export default Footer 
+
 Header.js 
+import React from 'react';
 function Header(props) 
 { 
 <div><p>Name :{props.title}</p>  </div> 
 }  
 export default Header 
+
 Student.js 
+import React from 'react';
 function Student(props) 
 { 
 <div><p>Name :{props.name}</p></div> 
 }  
 export default Student 
+
 App.js  
 import  Student from './Student.jsx' 
 import Header from './Header.jsx' 
