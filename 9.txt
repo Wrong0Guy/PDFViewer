@@ -1,36 +1,65 @@
-import numpy as np
-from sklearn.datasets import fetch_olivetti_faces
-from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.naive_bayes import GaussianNB
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-import matplotlib.pyplot as plt
+#include <mpi.h> 
+#include <stdio.h> 
+int main(int argc, char** argv) { 
+int rank, size; 
+int value, sum, product, max, min; 
+int all_sum, all_product, all_max, all_min; 
+ 
+MPI_Init(&argc, &argv); // Initialize MPI 
+MPI_Comm_rank(MPI_COMM_WORLD, &rank);  // Get rank 
+MPI_Comm_size(MPI_COMM_WORLD, &size); // Get number of processes 
+ 
+value = rank + 1; // Each process has a unique value 
+ 
+// ---- MPI_Reduce ---- 
+MPI_Reduce(&value, &sum, 1, MPI_INT, MPI_SUM, 0, 
+MPI_COMM_WORLD); 
+MPI_Reduce(&value, &product, 1, MPI_INT, MPI_PROD, 0, 
+MPI_COMM_WORLD); 
+MPI_Reduce(&value, &max, 1, MPI_INT, MPI_MAX, 0, 
+MPI_COMM_WORLD); 
+MPI_Reduce(&value, &min, 1, MPI_INT, MPI_MIN, 0, 
+MPI_COMM_WORLD); 
+ 
+if (rank == 0) { 
+printf("=== MPI_Reduce results at root ===\n"); 
+printf("SUM = %d\n", sum); 
+printf("PRODUCT = %d\n", product);
+printf("MAX  = %d\n", max); 
+printf("MIN = %d\n", min); 
+} 
+// ---- MPI_Allreduce ---- 
+MPI_Allreduce(&value, &all_sum, 1, MPI_INT, MPI_SUM, 
+MPI_COMM_WORLD); 
+MPI_Allreduce(&value, &all_product, 1, MPI_INT, MPI_PROD, 
+MPI_COMM_WORLD); 
+MPI_Allreduce(&value, &all_max, 1, MPI_INT, MPI_MAX, 
+MPI_COMM_WORLD); 
+MPI_Allreduce(&value, &all_min, 1, MPI_INT, MPI_MIN, 
+MPI_COMM_WORLD); 
+ 
+printf("Process %d: ALL_SUM = %d, ALL_PROD = %d, ALL_MAX = %d, 
+ALL_MIN = %d\n", 
+rank, all_sum, all_product, all_max, all_min); 
+ 
+MPI_Finalize(); // Finalize MPI 
+return 0; 
+} 
+ 
+OUTPUT: 
+ubantu@ubantu-HP-Pro-Tower-280-G9-PCI-Desktop-PC:~$ mpicc -g -o MPI 
+reduceallreduce.c 
+ubantu@ubantu-HP-Pro-Tower-280-G9-PCI-Desktop-PC:~$ mpirun -np 5 ./MPI 
+=== MPI_Reduce results at root === 
+SUM = 15 
+PRODUCT = 120 
+MAX = 5 
+MIN = 1 
+Process 0: ALL_SUM = 15, ALL_PROD = 120, ALL_MAX = 5, ALL_MIN = 1 
+Process 1: ALL_SUM = 15, ALL_PROD = 120, ALL_MAX = 5, ALL_MIN = 1 
+Process 2: ALL_SUM = 15, ALL_PROD = 120, ALL_MAX = 5, ALL_MIN = 1 
+Process 3: ALL_SUM = 15, ALL_PROD = 120, ALL_MAX = 5, ALL_MIN = 1 
+Process 4: ALL_SUM = 15, ALL_PROD = 120, ALL_MAX = 5, ALL_MIN = 1
 
-data = fetch_olivetti_faces(shuffle=True, random_state=42)
-X = data.data
-y = data.target
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
-gnb = GaussianNB()
-gnb.fit(X_train, y_train)
-y_pred = gnb.predict(X_test)
-
-accuracy = accuracy_score(y_test, y_pred)
-print(f'Accuracy: {accuracy * 100:.2f}%')
-
-print("\nClassification Report:")
-print(classification_report(y_test, y_pred, zero_division=1))
-
-print("\nConfusion Matrix:")
-print(confusion_matrix(y_test, y_pred))
-
-cross_val_accuracy = cross_val_score(gnb, X, y, cv=5, scoring='accuracy')
-print(f'\nCross-validation accuracy: {cross_val_accuracy.mean() * 100:.2f}%')
-
-fig, axes = plt.subplots(3, 5, figsize=(12, 8))
-for ax, image, label, prediction in zip(axes.ravel(), X_test, y_test, y_pred):
-    ax.imshow(image.reshape(64, 64), cmap=plt.cm.gray)
-    ax.set_title(f"True: {label}, Pred: {prediction}")
-    ax.axis('off')
-
-plt.show()
